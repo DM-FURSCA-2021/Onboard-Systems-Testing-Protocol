@@ -11,9 +11,12 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
-Adafruit_BMP280 bmp; // I2C
+//FRAM
+#include "Adafruit_FRAM_I2C.h"
 
-int servoPin1=7;
+Adafruit_BMP280 bmp;// I2C
+
+int servoPin1=5;
 int servoPos1=90;
 
 int servoPin2=6;
@@ -26,11 +29,24 @@ uint16_t BNO055_SAMPLERATE_DELAY_MS = 100;
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x29);
 
+Adafruit_FRAM_I2C fram     = Adafruit_FRAM_I2C();
 
 void setup() {
   Serial.begin(115200);
   Serial.println("Initializing Combined Systems Testing Protocol");
   delay(500);
+
+  //FRAM Test
+  Serial.println(F("FRAM Memory Chip Test"));
+  delay(100);
+  if (fram.begin()) {  // you can stick the new i2c addr in here, e.g. begin(0x51);
+    Serial.println("Found I2C FRAM");
+  } else {
+    Serial.println("I2C FRAM not identified ... check your connections?\r\n");
+    Serial.println("Will continue in case this processor doesn't support repeated start\r\n");
+  }
+  Serial.println();
+  delay(1000);
   
   //BMP Test
   Serial.println(F("BMP280 Sensor Test"));
@@ -116,8 +132,6 @@ void setup() {
 
 
 
-
-
   //Servo Setup
   myServo1.attach(servoPin1);
   myServo2.attach(servoPin2);
@@ -148,6 +162,32 @@ void setup() {
   myServo2.write(90);
   delay(1000);
 
+  Serial.println("Gimbal Full Mobility Test");
+  delay(500);
+
+  myServo1.write(135);
+  delay(250);
+  myServo2.write(135);
+  delay(100);
+  myServo1.write(45);
+  delay(100);
+  myServo2.write(45);
+  delay(100);
+  myServo1.write(135);
+  delay(100);
+  myServo2.write(135);
+  delay(100);
+  myServo1.write(45);
+  delay(100);
+  myServo2.write(45);
+  delay(100);
+  myServo1.write(135);
+  delay(100);
+  myServo2.write(90);
+  delay(250);
+  myServo1.write(90);
+  delay(250);
+  
   Serial.println("Systems Testing Protocol Complete");
                   
 }
